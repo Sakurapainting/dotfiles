@@ -1,0 +1,3 @@
+#!/bin/sh
+# 提交前拦截隐私泄露：直接 git commit 也走这套
+exec "$(git rev-parse --show-toplevel)/dotfiles" scan

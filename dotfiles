@@ -9,7 +9,8 @@
 #   ./dotfiles pull [--prune]    仓库 → 本机（覆盖前自动备份到 ~/.dotfiles-backup）
 #   ./dotfiles list              列出受管路径
 #   ./dotfiles add <相对路径>    把新路径加入清单
-#   ./dotfiles commit "消息"     push + 密钥扫描 + git 提交
+#   ./dotfiles scan              扫描密钥/个人邮箱域/私网地址
+#   ./dotfiles commit "消息"     push + 扫描 + git 提交
 #   ./dotfiles log               最近提交
 
 set -uo pipefail
@@ -144,6 +145,8 @@ scan_secrets() {
         'xox[baprs]-[A-Za-z0-9-]{12,}'
         '-----BEGIN [A-Z ]*PRIVATE KEY-----'
         '"(api[_-]?key|token|secret|password)"[[:space:]]*:[[:space:]]*"[^"$][^"]{11,}"'
+        '[A-Za-z0-9._%+-]+@(163|126|qq|gmail|outlook|hotmail|foxmail)\.com'
+        '\b(10|192\.168|172\.(1[6-9]|2[0-9]|3[01]))\.[0-9]{1,3}\.[0-9]{1,3}\b'
     )
     local pat hits=""
     for pat in "${patterns[@]}"; do
@@ -152,6 +155,16 @@ scan_secrets() {
         [ -n "$found" ] && hits+="$found"$'\n'
     done
     printf '%s' "$hits"
+}
+
+cmd_scan() {
+    local hits
+    hits=$(scan_secrets)
+    if [ -n "$hits" ]; then
+        printf '检测到疑似隐私/密钥：\n%s\n' "$(printf '%s' "$hits" | head -10)" >&2
+        return 1
+    fi
+    info "扫描通过：无密钥、个人邮箱域、私网地址"
 }
 
 cmd_commit() {
@@ -202,6 +215,7 @@ main() {
             else
                 shift; cmd_commit "$@"
             fi ;;
+        scan)   shift; cmd_scan ;;
         log)    shift; git -C "$REPO" --no-pager log --oneline -n "${1:-10}" ;;
         help|-h|--help) cmd_help ;;
         *) die "未知命令: $1（help 看用法）" ;;

@@ -62,6 +62,27 @@ git clone <远端> ~/dotfiles
 - **提交前扫密钥**：`sk-`、`ghp_`、`AIza`、私钥头、`"token": "…"` 命中即拒绝提交（`DOTFILES_ALLOW_KEYS=1` 可强制）
 - **不纳入**：浏览器数据、`~/.cache`、密钥与私钥、字体与二进制、显示器名/绝对路径这类机器相关项
 
+## 提交前隐私检查
+
+仓库是公开的，所以提交链路上有两道闸：
+
+1. `dotfiles commit` 会自动跑扫描
+2. `.githooks/pre-commit` 拦截直接 `git commit`
+
+扫描规则：常见密钥前缀（`sk-`/`ghp_`/`AIza`/`xox`）、私钥头、`"token": "…"`、个人邮箱域（163/126/qq/gmail/outlook/foxmail）、私网地址（10./192.168./172.16-31.）。
+
+克隆到新机器后启用自己的 hook：
+
+```bash
+git config core.hooksPath .githooks
+```
+
+手动检查：
+
+```bash
+dotfiles scan
+```
+
 ## 远端
 
 目前只有本地历史，没有 remote。要推到 GitHub：
