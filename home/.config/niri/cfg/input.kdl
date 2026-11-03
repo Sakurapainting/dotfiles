@@ -23,6 +23,10 @@ input {
         //accel-speed 0.0
     }
 
+    // Keep XWayland popup ownership aligned with keyboard focus.
+    // satellite 0.8.3 prefers the last hovered window as the popup parent.
+    warp-mouse-to-focus mode="center-xy"
+
     focus-follows-mouse // Automatically focus windows under the mouse pointer
     workspace-auto-back-and-forth // Enable workspace back & forth switching
 }
