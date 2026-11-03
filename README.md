@@ -62,28 +62,46 @@ git clone <远端> ~/dotfiles
 - **提交前扫密钥**：`sk-`、`ghp_`、`AIza`、私钥头、`"token": "…"` 命中即拒绝提交（`DOTFILES_ALLOW_KEYS=1` 可强制）
 - **不纳入**：浏览器数据、`~/.cache`、密钥与私钥、字体与二进制、显示器名/绝对路径这类机器相关项
 
-## 提交前隐私检查
+## 隐私
 
-仓库是公开的，所以提交链路上有两道闸：
+仓库是公开的，按三道闸管理：
 
-1. `dotfiles commit` 会自动跑扫描
-2. `.githooks/pre-commit` 拦截直接 `git commit`
+**1. 白名单制** —— 只有 `manifest` 里列出的路径才会进仓库，新装软件、浏览器数据、缓存默认都不在管理范围内。要托管新路径必须显式 `dotfiles add`。
 
-扫描规则：常见密钥前缀（`sk-`/`ghp_`/`AIza`/`xox`）、私钥头、`"token": "…"`、个人邮箱域（163/126/qq/gmail/outlook/foxmail）、私网地址（10./192.168./172.16-31.）。
-
-克隆到新机器后启用自己的 hook：
-
-```bash
-git config core.hooksPath .githooks
-```
-
-手动检查：
+**2. 提交前扫描** —— `dotfiles commit` 自带扫描，`.githooks/pre-commit` 让直接 `git commit` 也走同一套：
 
 ```bash
 dotfiles scan
 ```
 
-## 远端
+规则：密钥前缀（`sk-`/`ghp_`/`AIza`/`xox`）、私钥头、`"token": "…"`、个人邮箱域（163/126/qq/gmail/outlook/foxmail）、私网地址（10./192.168./172.16-31.）。命中即拒绝提交，确认安全可用 `DOTFILES_ALLOW_KEYS=1` 放行。
+
+**3. 提交身份** —— 本仓库故意用 GitHub 的 noreply 地址提交，避免真实邮箱进入公开的提交元数据：
+
+```
+本仓库: you2899047197@163.com
+全局  : 你的邮箱（不受影响，其他仓库照常）
+```
+
+仍然会被 GitHub 正确归属到账号。想让本仓库也用真实邮箱：`git -C ~/dotfiles config --local --unset user.email`。
+
+### 永不入库
+
+| 类别 | 例子 |
+|------|------|
+| 凭据 | token、API key、cookie、`.pem`、`id_*` 私钥 |
+| 账号数据 | 浏览器配置、`~/.ssh`、KDE Connect 私钥 |
+| 运行时状态 | 缓存、索引库、`colors.json`、`cached_layouts`、日志 |
+| 个人标识 | 真实邮箱域、内网 IP、设备序列号 |
+| 大二进制 | 字体、`.blend`、模型、安装包 |
+
+### 克隆后启用钩子
+
+```bash
+git config core.hooksPath .githooks
+```
+
+## 远端## 远端
 
 目前只有本地历史，没有 remote。要推到 GitHub：
 
