@@ -64,35 +64,41 @@ git clone <远端> ~/dotfiles
 
 ## 隐私
 
-仓库是公开的，按三道闸管理：
+公开仓库。策略与 LanRhyme 的 dotfiles 一致：**身份可以公开，凭据绝不入库**。
 
-**1. 白名单制** —— 只有 `manifest` 里列出的路径才会进仓库，新装软件、浏览器数据、缓存默认都不在管理范围内。要托管新路径必须显式 `dotfiles add`。
+### 凭据的防护
 
-**2. 提交前扫描** —— `dotfiles commit` 自带扫描，`.githooks/pre-commit` 让直接 `git commit` 也走同一套：
+**1. 白名单制** —— 只有 `manifest` 列出的路径才会进仓库，新装软件、浏览器数据、缓存默认都不在范围内，要显式 `dotfiles add`。
+
+**2. 文件名拦截** —— 同步时按名字挡掉凭据文件，命中即跳过：
+
+```
+*.pem  *.key  *.kdbx  *.p12  *.pfx
+id_rsa*  id_ed25519*  id_ecdsa*
+*credentials*  *token*  *secret*  cookies*  *_history
+```
+
+同一套模式也写进了 `exclude`，目录整体同步时有第二道兜底。
+
+**3. 内容扫描** —— `dotfiles commit` 自动跑，`.githooks/pre-commit` 让直接 `git commit` 也走同一套：
 
 ```bash
 dotfiles scan
 ```
 
-规则：密钥前缀（`sk-`/`ghp_`/`AIza`/`xox`）、私钥头、`"token": "…"`、个人邮箱域（163/126/qq/gmail/outlook/foxmail）、私网地址（10./192.168./172.16-31.）。命中即拒绝提交，确认安全可用 `DOTFILES_ALLOW_KEYS=1` 放行。
+规则：密钥前缀（`sk-`/`ghp_`/`AIza`/`xox`/`github_pat_`）、私钥头、`"token": "…"` 这类键值、内网地址（10./192.168./172.16-31.）。命中即拒绝提交，确认安全可用 `DOTFILES_ALLOW_KEYS=1` 放行。
 
-**3. 提交身份** —— 本仓库故意用 GitHub 的 noreply 地址提交，避免真实邮箱进入公开的提交元数据：
-
-```
-本仓库: you2899047197@163.com
-全局  : 你自己的邮箱（不受影响，其他仓库照常）
-```
-
-仍然会被 GitHub 正确归属到账号。想让本仓库也用真实邮箱：`git -C ~/dotfiles config --local --unset user.email`。
+**4. 身份公开** —— 提交用真实邮箱（`SakoroYou <you2899047197@163.com>`），与 LanRhyme 的做法相同：他的 `dot_gitconfig` 和全部提交都用真实 foxmail 地址。所以 `.gitconfig` 是受控文件，里面只有名字、邮箱和 gh 的 credential helper 命令，没有 token 本体。
 
 ### 永不入库
 
 | 类别 | 例子 |
 |------|------|
-| 凭据 | token、API key、cookie、`.pem`、`id_*` 私钥 |
-| 账号数据 | 浏览器配置、`~/.ssh`、KDE Connect 私钥 |
+| 凭据本体 | API key、token、cookie、`.pem`、`id_*` 私钥 |
+| 设备私钥 | KDE Connect 证书、`~/.ssh` |
+| 服务配置 | `frpc.toml`、`dufs/config.yaml`、`cloudflared` 凭据 |
+| 账号 token | `gh/hosts.yml`、插件里存 token 的 `settings.json` |
 | 运行时状态 | 缓存、索引库、`colors.json`、`cached_layouts`、日志 |
-| 个人标识 | 真实邮箱域、内网 IP、设备序列号 |
 | 大二进制 | 字体、`.blend`、模型、安装包 |
 
 ### 克隆后启用钩子
@@ -101,12 +107,4 @@ dotfiles scan
 git config core.hooksPath .githooks
 ```
 
-## 远端## 远端
-
-目前只有本地历史，没有 remote。要推到 GitHub：
-
-```bash
-gh repo create dotfiles --private --source ~/dotfiles --remote origin --push
-```
-
-建议私有仓库——配置里难免出现家用路径、内网地址、代理端口。
+## 远端

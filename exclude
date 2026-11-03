@@ -12,3 +12,16 @@ cached_layouts
 *.log
 *.bak.*
 *.tmp
+
+# 凭据类兜底：万一目录里有这些文件，也不进仓库
+*.pem
+*.key
+*.kdbx
+*.p12
+id_rsa*
+id_ed25519*
+*credentials*
+*token*
+*secret*
+cookies*
+*_history

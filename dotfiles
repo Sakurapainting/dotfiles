@@ -40,8 +40,20 @@ backup_path() {
 }
 
 # ── 本机 → 仓库 ──────────────────────────────────────────
+is_credential_name() {
+    case "$(basename -- "$1")" in
+        *.pem|*.key|*.kdbx|*.p12|*.pfx|id_rsa*|id_ed25519*|id_ecdsa*|*credentials*|*token*|*secret*|cookies*|*_history)
+            return 0 ;;
+    esac
+    return 1
+}
+
 push_one() {
     local p="$1" dry="$2"
+    if is_credential_name "$p"; then
+        warn "$p 命中凭据文件名规则，跳过（不进仓库）"
+        return 1
+    fi
     if [ ! -e "$HOME/$p" ]; then
         if [ -e "$SRC/$p" ]; then
             warn "$p 在本机已不存在，仓库里的旧副本保留未删"
@@ -76,6 +88,10 @@ cmd_push() {
 # ── 仓库 → 本机 ──────────────────────────────────────────
 pull_one() {
     local p="$1" prune="$2" changes
+    if is_credential_name "$p"; then
+        warn "$p 命中凭据文件名规则，跳过"
+        return 1
+    fi
     [ -e "$SRC/$p" ] || { warn "仓库里没有 $p，跳过"; return 1; }
     if [ -d "$SRC/$p" ]; then
         # 先算差异，没变化就不备份、不写入
@@ -145,7 +161,6 @@ scan_secrets() {
         'xox[baprs]-[A-Za-z0-9-]{12,}'
         '-----BEGIN [A-Z ]*PRIVATE KEY-----'
         '"(api[_-]?key|token|secret|password)"[[:space:]]*:[[:space:]]*"[^"$][^"]{11,}"'
-        '[A-Za-z0-9._%+-]+@(163|126|qq|gmail|outlook|hotmail|foxmail)\.com'
         '\b(10|192\.168|172\.(1[6-9]|2[0-9]|3[01]))\.[0-9]{1,3}\.[0-9]{1,3}\b'
     )
     local pat hits=""
@@ -164,7 +179,7 @@ cmd_scan() {
         printf '检测到疑似隐私/密钥：\n%s\n' "$(printf '%s' "$hits" | head -10)" >&2
         return 1
     fi
-    info "扫描通过：无密钥、个人邮箱域、私网地址"
+    info "扫描通过：无密钥、无凭据、无内网地址"
 }
 
 cmd_commit() {
