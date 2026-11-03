@@ -94,6 +94,10 @@ widget_order = [ "lockscreen-login-box@eDP-1", "lockscreen-login-box@HDMI-A-1" ]
         show_unlock_hint = true
         show_weather = true
 
+[nightlight]
+enabled = true
+force = true
+
 [theme]
 builtin = "Noctalia"
 community_palette = "Oxocarbon"
