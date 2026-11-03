@@ -8,6 +8,9 @@
 .bash_profile
 .xprofile
 
+# ── git ──
+.gitconfig
+
 # ── 终端与编辑器 ──
 .config/alacritty
 .config/fish
