@@ -65,6 +65,7 @@ Rectangle {
     Column {
         anchors.centerIn: parent
         width: Math.min(420, parent.width - 40)
+        scale: 1.2
         spacing: 22
 
         Column {
