@@ -26,10 +26,13 @@ dotfiles/
 ├── .githooks/        # pre-commit：调用 dotfiles scan
 ├── README.md
 ├── LICENSE
-└── home/             # 镜像内容
-    ├── .bashrc  .zshrc  .bash_profile  .xprofile  .gitconfig
-    ├── .config/…
-    └── .local/bin/…
+├── home/             # 镜像内容
+│   ├── .bashrc  .zshrc  .bash_profile  .xprofile  .gitconfig
+│   ├── .config/…
+│   └── .local/bin/…
+└── sddm/             # 系统级登录主题（手动安装）
+    ├── README.md
+    └── morandi-dark/
 ```
 
 ## 受管范围
@@ -43,6 +46,7 @@ dotfiles/
 | 输入法 | `.config/fcitx5` |
 | 用户服务 | `.config/systemd/user` |
 | 脚本 | `.local/bin` |
+| 登录界面 | `sddm/morandi-dark`（系统级，不参与 `home/` 同步） |
 
 `~/.config` 总占用约 2.4 GB，其中绝大部分是浏览器缓存与索引数据库；实际纳入托管的配置约 216 KB。
 
