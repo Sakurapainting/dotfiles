@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# gh 官方二进制装在 ~/.local/opt/gh；没有时回退到系统包
+if [ -x "$HOME/.local/opt/gh/bin/gh" ]; then
+    exec "$HOME/.local/opt/gh/bin/gh" "$@"
+fi
+exec /usr/bin/gh "$@"

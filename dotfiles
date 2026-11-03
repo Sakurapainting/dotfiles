@@ -122,7 +122,8 @@ cmd_status() {
             printf '  本机缺失  %s\n' "$p"; changed=1; continue
         fi
         if [ -d "$HOME/$p" ]; then
-            out=$(rsync -an --delete --exclude-from="$EXCLUDES" \
+            # --checksum: 只比内容，忽略 mtime（git 检出会改 mtime，否则全是噪声）
+            out=$(rsync -an --checksum --delete --exclude-from="$EXCLUDES" \
                         --out-format='%i %n' "$HOME/$p/" "$SRC/$p/" 2>/dev/null |
                   grep -E '^(>f|<f|\*deleting)' || true)
             [ -n "$out" ] && { printf '  %s\n' "$p"; printf '%s\n' "$out" | sed 's/^/    /'; changed=1; }
