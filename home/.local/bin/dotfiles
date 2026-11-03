@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# 薄封装，指向 ~/dotfiles 仓库的同步器
+exec "$HOME/dotfiles/dotfiles" "$@"

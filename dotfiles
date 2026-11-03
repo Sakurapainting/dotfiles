@@ -1,0 +1,209 @@
+#!/usr/bin/env bash
+# dotfiles —— 白名单式配置仓库同步器
+#
+#   ~/dotfiles/home/...  ←镜像→  ~/.config/...
+#
+# 用法:
+#   ./dotfiles status            看本机与仓库的差异（= push 会抓到什么）
+#   ./dotfiles push [--dry-run]  本机 → 仓库
+#   ./dotfiles pull [--prune]    仓库 → 本机（覆盖前自动备份到 ~/.dotfiles-backup）
+#   ./dotfiles list              列出受管路径
+#   ./dotfiles add <相对路径>    把新路径加入清单
+#   ./dotfiles commit "消息"     push + 密钥扫描 + git 提交
+#   ./dotfiles log               最近提交
+
+set -uo pipefail
+
+REPO="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+SRC="$REPO/home"
+MANIFEST="$REPO/manifest"
+EXCLUDES="$REPO/exclude"
+BACKUP_ROOT="$HOME/.dotfiles-backup"
+
+info() { printf '  %s\n' "$*"; }
+warn() { printf '  警告: %s\n' "$*" >&2; }
+die() { printf '错误: %s\n' "$*" >&2; exit 1; }
+
+paths() { grep -vE '^[[:space:]]*(#|$)' "$MANIFEST"; }
+
+backup_path() {
+    local p="$1" dest="$BACKUP_ROOT/$STAMP/$p"
+    [ -e "$HOME/$p" ] || return 0
+    mkdir -p "$(dirname -- "$dest")"
+    if [ -d "$HOME/$p" ]; then
+        rsync -a "$HOME/$p/" "$dest/"
+    else
+        cp -p "$HOME/$p" "$dest"
+    fi
+    info "备份 $p → ${dest#$HOME/}"
+}
+
+# ── 本机 → 仓库 ──────────────────────────────────────────
+push_one() {
+    local p="$1" dry="$2"
+    if [ ! -e "$HOME/$p" ]; then
+        if [ -e "$SRC/$p" ]; then
+            warn "$p 在本机已不存在，仓库里的旧副本保留未删"
+        fi
+        return 1
+    fi
+    if [ -d "$HOME/$p" ]; then
+        mkdir -p "$SRC/$p"
+        rsync -a --delete --exclude-from="$EXCLUDES" $dry \
+              --out-format='%i %n' "$HOME/$p/" "$SRC/$p/" |
+            grep -E '^(>f|<f|\*deleting)' || true
+    else
+        mkdir -p "$(dirname -- "$SRC/$p")"
+        if [ -n "$dry" ]; then
+            cmp -s "$HOME/$p" "$SRC/$p" 2>/dev/null || info "changed: $p"
+        else
+            cp -p "$HOME/$p" "$SRC/$p"
+            info "$p"
+        fi
+    fi
+}
+
+cmd_push() {
+    local dry=""
+    [ "${1:-}" = "--dry-run" ] && dry="--dry-run"
+    [ -d "$SRC" ] || mkdir -p "$SRC"
+    info "仓库: $REPO"
+    while IFS= read -r p; do push_one "$p" "$dry"; done < <(paths)
+    [ -z "$dry" ] && info "完成。git status 看变更，dotfiles commit 提交"
+}
+
+# ── 仓库 → 本机 ──────────────────────────────────────────
+pull_one() {
+    local p="$1" prune="$2" changes
+    [ -e "$SRC/$p" ] || { warn "仓库里没有 $p，跳过"; return 1; }
+    if [ -d "$SRC/$p" ]; then
+        # 先算差异，没变化就不备份、不写入
+        changes=$(rsync -an --exclude-from="$EXCLUDES" $prune \
+                        --out-format='%i %n' "$SRC/$p/" "$HOME/$p/" 2>/dev/null |
+                  grep -E '^(>f|<f|\*deleting)' || true)
+        [ -z "$changes" ] && return 0
+        info "$p"
+        printf '%s\n' "$changes" | sed 's/^/    /'
+        backup_path "$p"
+        mkdir -p "$HOME/$p"
+        rsync -a --exclude-from="$EXCLUDES" $prune "$SRC/$p/" "$HOME/$p/"
+    else
+        cmp -s "$SRC/$p" "$HOME/$p" 2>/dev/null && return 0
+        info "$p"
+        backup_path "$p"
+        mkdir -p "$(dirname -- "$HOME/$p")"
+        cp -p "$SRC/$p" "$HOME/$p"
+    fi
+}
+
+prune_backups() {
+    # 只保留最近 20 次拉取的备份
+    local dirs
+    dirs=$(ls -1d "$BACKUP_ROOT"/*/ 2>/dev/null | sort || true)
+    [ -n "$dirs" ] && printf '%s\n' "$dirs" | head -n -20 | xargs -r rm -rf
+}
+
+cmd_pull() {
+    local prune=""
+    if [ "${1:-}" = "--prune" ]; then
+        prune="--delete"
+        warn "--prune: 本机多余的受管文件会被删除（缓存类已排除）"
+    fi
+    while IFS= read -r p; do pull_one "$p" "$prune"; done < <(paths)
+    prune_backups
+    info "完成。niri 生效请跑: niri validate && niri msg action load-config-file"
+}
+
+# ── 差异 ─────────────────────────────────────────────────
+cmd_status() {
+    local changed=0
+    while IFS= read -r p; do
+        if [ ! -e "$HOME/$p" ]; then
+            printf '  本机缺失  %s\n' "$p"; changed=1; continue
+        fi
+        if [ -d "$HOME/$p" ]; then
+            out=$(rsync -an --delete --exclude-from="$EXCLUDES" \
+                        --out-format='%i %n' "$HOME/$p/" "$SRC/$p/" 2>/dev/null |
+                  grep -E '^(>f|<f|\*deleting)' || true)
+            [ -n "$out" ] && { printf '  %s\n' "$p"; printf '%s\n' "$out" | sed 's/^/    /'; changed=1; }
+        else
+            cmp -s "$HOME/$p" "$SRC/$p" 2>/dev/null || { printf '  已修改    %s\n' "$p"; changed=1; }
+        fi
+    done < <(paths)
+    [ "$changed" -eq 0 ] && info "无差异"
+}
+
+# ── 密钥扫描 ─────────────────────────────────────────────
+scan_secrets() {
+    local patterns=(
+        'sk-[A-Za-z0-9]{20,}'
+        'gh[pousr]_[A-Za-z0-9]{16,}'
+        'github_pat_[A-Za-z0-9_]{20,}'
+        'AIza[0-9A-Za-z_-]{20,}'
+        'xox[baprs]-[A-Za-z0-9-]{12,}'
+        '-----BEGIN [A-Z ]*PRIVATE KEY-----'
+        '"(api[_-]?key|token|secret|password)"[[:space:]]*:[[:space:]]*"[^"$][^"]{11,}"'
+    )
+    local pat hits=""
+    for pat in "${patterns[@]}"; do
+        local found
+        found=$(grep -rInE -- "$pat" "$SRC" 2>/dev/null || true)
+        [ -n "$found" ] && hits+="$found"$'\n'
+    done
+    printf '%s' "$hits"
+}
+
+cmd_commit() {
+    local msg="${1:?用法: dotfiles commit \"提交消息\"}"
+    cmd_push
+    local hits
+    hits=$(scan_secrets)
+    if [ -n "$hits" ]; then
+        printf '检测到疑似密钥，已中止：\n%s\n' "$(printf '%s' "$hits" | head -10)" >&2
+        die "确认安全后可用 DOTFILES_ALLOW_KEYS=1 ./dotfiles commit \"消息\""
+    fi
+    cd "$REPO" || die "进不去仓库"
+    if [ -z "$(git status --porcelain)" ]; then
+        info "没有变更，无需提交"
+        return 0
+    fi
+    git add -A
+    git commit -q -m "$msg"
+    info "已提交: $(git log -1 --oneline)"
+}
+
+cmd_add() {
+    local p="${1:?用法: dotfiles add .config/新目录}"
+    p="${p#./}"; p="${p%/}"
+    [ -e "$HOME/$p" ] || die "本机不存在: ~/$p"
+    if paths | grep -qxF "$p"; then
+        info "已在清单里: $p"; return 0
+    fi
+    printf '%s\n' "$p" >> "$MANIFEST"
+    info "已加入清单: $p"
+    info "接着跑: ./dotfiles push"
+}
+
+cmd_help() { sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; }
+
+STAMP=$(date +%Y%m%d-%H%M%S)
+main() {
+    case "${1:-status}" in
+        status) shift; cmd_status "$@" ;;
+        push)   shift; cmd_push "$@" ;;
+        pull)   shift; cmd_pull "$@" ;;
+        list)   shift; paths ;;
+        add)    shift; cmd_add "$@" ;;
+        commit)
+            if [ "${DOTFILES_ALLOW_KEYS:-}" = "1" ]; then
+                shift; cmd_push; cd "$REPO" || exit 1
+                git add -A; git commit -q -m "${1:?消息}"; info "已提交(跳过扫描): $(git log -1 --oneline)"
+            else
+                shift; cmd_commit "$@"
+            fi ;;
+        log)    shift; git -C "$REPO" --no-pager log --oneline -n "${1:-10}" ;;
+        help|-h|--help) cmd_help ;;
+        *) die "未知命令: $1（help 看用法）" ;;
+    esac
+}
+main "$@"

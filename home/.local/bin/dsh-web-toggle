@@ -1,0 +1,37 @@
+#!/bin/bash
+# 启停 DSH Web（systemd --user），启动后自动打开带 token 的地址
+set -u
+SVC=dsh-web.service
+PORT=3080
+
+port_busy() { ss -ltn 2>/dev/null | grep -q ":$PORT "; }
+
+if systemctl --user is-active --quiet "$SVC"; then
+    systemctl --user stop "$SVC"
+    notify-send "DSH Web" "已停止"
+    exit 0
+fi
+
+if port_busy; then
+    notify-send "DSH Web" "端口 $PORT 被手动启动的实例占用"
+    exit 0
+fi
+
+systemctl --user start "$SVC"
+url=""
+for _ in $(seq 1 40); do
+    url=$(journalctl --user -u "$SVC" -n 60 --no-pager -o cat 2>/dev/null \
+          | grep -o "http://127\.0\.0\.1:$PORT/?token=[^[:space:]]*" | tail -1)
+    [ -n "$url" ] && break
+    sleep 0.25
+done
+if [ -n "$url" ]; then
+    if command -v microsoft-edge-stable >/dev/null 2>&1; then
+        mkdir -p "$HOME/.local/share/dsh-edge"
+        setsid microsoft-edge-stable --user-data-dir="$HOME/.local/share/dsh-edge" --app="$url" >/dev/null 2>&1 < /dev/null &
+    else
+        xdg-open "$url" >/dev/null 2>&1 &
+    fi
+else
+    notify-send "DSH Web" "已启动，但没抓到 token 地址，查看 journalctl --user -u dsh-web"
+fi

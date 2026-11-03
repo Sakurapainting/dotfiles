@@ -1,0 +1,14 @@
+# 同步时排除的模式（rsync 语法，对每个清单根目录生效）
+# 只写"运行时产物/缓存/密钥"，不要把关掉备份当排除项
+
+# noctalia 生成物
+colors.json
+morandi-backup/
+
+# fcitx5 输入法缓存
+cached_layouts
+
+# 日志与手工备份
+*.log
+*.bak.*
+*.tmp

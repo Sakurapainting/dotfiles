@@ -1,0 +1,8 @@
+[Unit]
+Description=Re-apply the ChatGPT desktop-entry fix whenever the package replaces it
+
+[Path]
+PathChanged=/usr/share/applications/chatgpt.desktop
+
+[Install]
+WantedBy=default.target

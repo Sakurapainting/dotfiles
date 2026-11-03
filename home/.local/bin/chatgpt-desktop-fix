@@ -1,0 +1,27 @@
+#!/bin/bash
+# 去掉 ChatGPT 桌面入口对 http/https 的声明；包更新后自动重跑
+set -u
+SRC=/usr/share/applications/chatgpt.desktop
+DST="$HOME/.local/share/applications/chatgpt.desktop"
+[ -f "$SRC" ] || exit 0
+
+mkdir -p "$(dirname "$DST")"
+python3 - "$SRC" "$DST.tmp" <<'PY'
+import sys
+src, dst = sys.argv[1], sys.argv[2]
+drop = {"x-scheme-handler/http", "x-scheme-handler/https"}
+out = []
+for line in open(src, encoding="utf-8"):
+    if line.startswith("MimeType="):
+        items = [m for m in line.strip().split("=", 1)[1].split(";") if m and m not in drop]
+        if items:
+            line = "MimeType=" + ";".join(items) + ";\n"
+        else:
+            line = ""
+    out.append(line)
+open(dst, "w", encoding="utf-8").write("".join(out))
+PY
+mv -f "$DST.tmp" "$DST"
+chmod 644 "$DST"
+update-desktop-database "$HOME/.local/share/applications" 2>/dev/null || true
+xdg-settings set default-web-browser microsoft-edge.desktop 2>/dev/null || true

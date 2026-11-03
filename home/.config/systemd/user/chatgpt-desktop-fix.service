@@ -1,0 +1,9 @@
+[Unit]
+Description=Strip http/https handlers from the ChatGPT desktop entry
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/chatgpt-desktop-fix
+
+[Install]
+WantedBy=default.target

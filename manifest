@@ -1,0 +1,32 @@
+# 本机受管的配置清单（相对 $HOME，路径即镜像结构）
+# 加一行 = 纳入托管；删一行 = 停止托管（不会删除本机文件）
+# 加完跑 ./dotfiles push 抓取，./dotfiles status 看差异
+
+# ── shell ──
+.bashrc
+.zshrc
+.bash_profile
+.xprofile
+
+# ── 终端与编辑器 ──
+.config/alacritty
+.config/fish
+.config/micro/settings.json
+
+# ── 桌面（niri + noctalia + 终端信息） ──
+.config/niri
+.config/noctalia
+.config/fastfetch
+.config/autostart
+.config/mimeapps.list
+.config/user-dirs.dirs
+.config/user-dirs.locale
+
+# ── 输入法 ──
+.config/fcitx5
+
+# ── systemd 用户单元 ──
+.config/systemd/user
+
+# ── 自己的脚本 ──
+.local/bin

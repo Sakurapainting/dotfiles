@@ -1,0 +1,13 @@
+[Unit]
+Description=DeepSeek Harness Web UI
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/dsh web --no-open --port 3080
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target
