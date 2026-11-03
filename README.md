@@ -57,6 +57,7 @@ dotfiles pull --prune        # 同上，并删除本机多余的受管文件
 dotfiles list                # 列出受管路径
 dotfiles add .config/新目录  # 登记新路径
 dotfiles scan                # 单独执行隐私扫描
+dotfiles rollback [路径]     # 丢弃未提交改动，恢复到最近一次提交
 dotfiles log                 # 最近提交
 ```
 
@@ -73,6 +74,8 @@ dotfiles log                 # 最近提交
 **排除规则。** `exclude` 中的模式对每个受管根目录生效，用于挡掉运行时产物（`colors.json`、`cached_layouts`、日志）与凭据文件。被排除的文件不参与同步，也不会因 `--prune` 被删除。
 
 **备份。** `pull` 在覆盖前把受影响路径复制到 `~/.dotfiles-backup/<时间戳>/`，仅备份真正发生变化的路径，保留最近 20 次。
+
+**回档。** `rollback` 先丢弃仓库内未提交的改动，再把最近一次提交还原到本机，全程仍会备份被覆盖的文件。支持单路径回退，例如 `dotfiles rollback .local/state/noctalia/settings.toml`。
 
 **生效方式。** niri 配置改动后执行：
 

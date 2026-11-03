@@ -10,6 +10,7 @@
 #   ./dotfiles list              列出受管路径
 #   ./dotfiles add <相对路径>    把新路径加入清单
 #   ./dotfiles scan              扫描密钥/个人邮箱域/私网地址
+#   ./dotfiles rollback [路径]   丢弃未提交改动，恢复到最近一次提交
 #   ./dotfiles commit "消息"     push + 扫描 + git 提交
 #   ./dotfiles log               最近提交
 
@@ -172,6 +173,19 @@ scan_secrets() {
     printf '%s' "$hits"
 }
 
+cmd_rollback() {
+    local target="${1:-}"
+    cd "$REPO" || die "进不去仓库"
+    if [ -n "$target" ]; then
+        git checkout -- "home/$target" 2>/dev/null || die "没有 $target 的已提交版本"
+        info "已回退: $target → 最近一次提交"
+    else
+        git checkout -- home 2>/dev/null || die "回退失败"
+        info "已回退全部受管文件 → 最近一次提交"
+    fi
+    cmd_pull
+}
+
 cmd_scan() {
     local hits
     hits=$(scan_secrets)
@@ -231,6 +245,7 @@ main() {
                 shift; cmd_commit "$@"
             fi ;;
         scan)   shift; cmd_scan ;;
+        rollback) shift; cmd_rollback "$@" ;;
         log)    shift; git -C "$REPO" --no-pager log --oneline -n "${1:-10}" ;;
         help|-h|--help) cmd_help ;;
         *) die "未知命令: $1（help 看用法）" ;;
