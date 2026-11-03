@@ -477,7 +477,7 @@ white = '{palette["subtext0"]}'
         else:
             text = re.sub(
                 r"^\[general\]\s*$",
-                f'[general]\nimport = ["{ALACRITTY_THEME}"]',
+                '[general]\nimport = ["themes/noctalia.toml"]',
                 text, count=1, flags=re.MULTILINE,
             )
 
