@@ -114,6 +114,11 @@ pull_one() {
     fi
 }
 
+reload_noctalia() {
+    command -v noctalia >/dev/null 2>&1 || return 0
+    noctalia msg config-reload >/dev/null 2>&1 && info "noctalia 配置已重载"
+}
+
 prune_backups() {
     # 只保留最近 20 次拉取的备份
     local dirs
@@ -129,6 +134,7 @@ cmd_pull() {
     fi
     while IFS= read -r p; do pull_one "$p" "$prune"; done < <(paths)
     prune_backups
+    reload_noctalia
     info "完成。niri 生效请跑: niri validate && niri msg action load-config-file"
 }
 
