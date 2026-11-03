@@ -151,7 +151,7 @@ scan_secrets() {
     local pat hits=""
     for pat in "${patterns[@]}"; do
         local found
-        found=$(grep -rInE -- "$pat" "$SRC" 2>/dev/null || true)
+        found=$(grep -rInE --exclude-dir=.git -- "$pat" "$REPO" 2>/dev/null || true)
         [ -n "$found" ] && hits+="$found"$'\n'
     done
     printf '%s' "$hits"

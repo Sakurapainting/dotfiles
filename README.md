@@ -80,7 +80,7 @@ dotfiles scan
 
 ```
 本仓库: you2899047197@163.com
-全局  : 你的邮箱（不受影响，其他仓库照常）
+全局  : 你自己的邮箱（不受影响，其他仓库照常）
 ```
 
 仍然会被 GitHub 正确归属到账号。想让本仓库也用真实邮箱：`git -C ~/dotfiles config --local --unset user.email`。
