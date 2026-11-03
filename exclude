@@ -25,3 +25,7 @@ id_ed25519*
 *secret*
 cookies*
 *_history
+
+# Python 缓存
+__pycache__/
+*.pyc

@@ -1,4 +1,3 @@
-
 [Default Applications]
 text/html=microsoft-edge.desktop
 x-scheme-handler/http=microsoft-edge.desktop
@@ -10,3 +9,7 @@ x-scheme-handler/ccswitch=cc-switch-handler.desktop
 x-scheme-handler/codex=chatgpt.desktop
 x-scheme-handler/about=microsoft-edge.desktop
 x-scheme-handler/unknown=microsoft-edge.desktop
+application/vnd.openxmlformats-officedocument.spreadsheetml.sheet=libreoffice-calc.desktop
+
+[Added Associations]
+application/vnd.openxmlformats-officedocument.spreadsheetml.sheet=libreoffice-calc.desktop;

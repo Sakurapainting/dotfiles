@@ -34,3 +34,4 @@
 
 # ── 自己的脚本 ──
 .local/bin
+.local/state/noctalia/settings.toml

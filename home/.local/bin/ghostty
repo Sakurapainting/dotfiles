@@ -1,0 +1,3 @@
+#!/bin/sh
+# Use Ghostty's native Wayland text input path for Fcitx5/Rime.
+exec env -u GTK_IM_MODULE /usr/bin/ghostty "$@"
