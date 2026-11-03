@@ -4,8 +4,8 @@ config_version = 16
 order = [ "default" ]
 
     [bar.default]
+    center = [ "clock", "media" ]
     end = [
-        "media",
         "tray",
         "notifications",
         "clipboard",
@@ -19,6 +19,7 @@ order = [ "default" ]
         "control-center",
         "session"
     ]
+    widget_spacing = 8
 
 [control_center.media]
 show_visualizer = false
@@ -112,6 +113,9 @@ path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
 [wallpaper.monitors.eDP-1]
 path = "/home/you/图片/pixiewall-u1a6st-3840x2160.jpg"
 
+[widget.clock]
+format = "{:%H:%M} · {:%a %m/%d}"
+
 [widget.dsh]
 glyph = "message-chatbot"
 label = "DSH"
@@ -120,3 +124,7 @@ type = "custom_button"
 
     [widget.dsh.actions]
     left = "exec /home/you/.local/bin/dsh-web-toggle"
+
+[widget.media]
+hide_when_idle = false
+hide_when_no_media = false

@@ -10,6 +10,15 @@ x-scheme-handler/codex=chatgpt.desktop
 x-scheme-handler/about=microsoft-edge.desktop
 x-scheme-handler/unknown=microsoft-edge.desktop
 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet=libreoffice-calc.desktop
+x-scheme-handler/mailto=userapp-Thunderbird-C7JWX3.desktop
+message/rfc822=userapp-Thunderbird-C7JWX3.desktop
+text/calendar=org.mozilla.Thunderbird.desktop
+x-scheme-handler/mid=userapp-Thunderbird-C7JWX3.desktop
+x-scheme-handler/net.thunderbird=userapp-Thunderbird-21UVX3.desktop
 
 [Added Associations]
 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet=libreoffice-calc.desktop;
+x-scheme-handler/mailto=userapp-Thunderbird-C7JWX3.desktop;
+x-scheme-handler/mid=userapp-Thunderbird-C7JWX3.desktop;
+message/rfc822=userapp-Thunderbird-C7JWX3.desktop;
+x-scheme-handler/net.thunderbird=userapp-Thunderbird-21UVX3.desktop;
