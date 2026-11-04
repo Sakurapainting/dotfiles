@@ -4,7 +4,7 @@ config_version = 16
 order = [ "default" ]
 
     [bar.default]
-    center = [ "clock", "media" ]
+    center = [ "media", "clock" ]
     end = [
         "tray",
         "notifications",
@@ -118,6 +118,7 @@ path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
 path = "/home/you/图片/pixiewall-u1a6st-3840x2160.jpg"
 
 [widget.clock]
+anchor = true
 format = "{:%H:%M} · {:%a %m/%d}"
 
 [widget.dsh]
@@ -132,3 +133,12 @@ type = "custom_button"
 [widget.media]
 hide_when_idle = false
 hide_when_no_media = false
+max_length = 160.0
+title_scroll = "on_hover"
+
+[widget.tray]
+drawer = true
+drawer_columns = 3
+drawer_item_size = 20.0
+hide_passive = false
+pinned = [ "wechat" ]
