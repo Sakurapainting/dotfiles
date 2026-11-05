@@ -19,6 +19,7 @@ order = [ "default" ]
         "control-center",
         "session"
     ]
+    position = "bottom"
     widget_spacing = 8
 
 [control_center.media]
