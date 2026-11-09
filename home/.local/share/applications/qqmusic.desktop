@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=QQ音乐
+Name[zh_CN]=QQ音乐
+Comment=Tencent QQMusic (native Wayland, compatible embedded-page bridge)
+Exec=/home/you/.local/bin/qqmusic %U
+Icon=qqmusic
+Terminal=false
+Categories=Audio;Music;Player;AudioVideo;
+Keywords=qqmusic;music;音乐;
+StartupWMClass=qqmusic

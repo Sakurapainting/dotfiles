@@ -35,3 +35,5 @@
 # ── 自己的脚本 ──
 .local/bin
 .local/state/noctalia/settings.toml
+.local/share/qqmusic-compat/prepare.py
+.local/share/applications/qqmusic.desktop

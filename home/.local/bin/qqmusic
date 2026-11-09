@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-# Run QQ Music (AUR qqmusic-electron) with native Wayland via system Electron.
-if [[ ! -x /usr/bin/electron44 || ! -f /usr/lib/qqmusic/app.asar ]]; then
-  echo "QQ 音乐还没装好：缺少 /usr/bin/electron44 或 /usr/lib/qqmusic/app.asar" >&2
-  echo "请先执行： paru -S qqmusic-electron" >&2
-  exit 1
+set -euo pipefail
+compat_root="/home/you/.local/share/qqmusic-compat"
+if /usr/bin/python "$compat_root/prepare.py"; then
+    exec /usr/bin/electron44 "$compat_root/app" --ozone-platform-hint=auto "$@"
 fi
-exec /usr/bin/electron44 /usr/lib/qqmusic/app.asar --ozone-platform-hint=auto "$@"
+exec /usr/bin/qqmusic --ozone-platform-hint=auto "$@"
