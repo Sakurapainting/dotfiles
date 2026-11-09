@@ -13,6 +13,7 @@ input {
 
     touchpad {
         tap // Enable tap-to-click
+        drag-lock // Keep a drag active briefly while lifting to reposition the finger
         natural-scroll // Enable natural (macOS-style) scrolling
     }
 
