@@ -4,9 +4,8 @@ config_version = 16
 order = [ "default" ]
 
     [bar.default]
-    center = [ "media", "clock" ]
+    center = [ "clock" ]
     end = [
-        "tray",
         "notifications",
         "clipboard",
         "network",
@@ -17,9 +16,11 @@ order = [ "default" ]
         "battery",
         "dsh",
         "control-center",
-        "session"
+        "session",
+        "tray"
     ]
     position = "bottom"
+    start = [ "launcher", "wallpaper", "workspaces", "media" ]
     widget_spacing = 8
 
 [control_center.media]
@@ -138,8 +139,8 @@ max_length = 160.0
 title_scroll = "on_hover"
 
 [widget.tray]
-drawer = true
+drawer = false
 drawer_columns = 3
 drawer_item_size = 20.0
 hide_passive = false
-pinned = [ "wechat", "QQ音乐", "ChatGPT" ]
+pinned = [ "wechat", "QQ音乐", "steam" ]
