@@ -142,4 +142,4 @@ drawer = true
 drawer_columns = 3
 drawer_item_size = 20.0
 hide_passive = false
-pinned = [ "wechat" ]
+pinned = [ "wechat", "QQ音乐", "ChatGPT" ]
