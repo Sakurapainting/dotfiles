@@ -15,6 +15,8 @@ message/rfc822=userapp-Thunderbird-C7JWX3.desktop
 text/calendar=org.mozilla.Thunderbird.desktop
 x-scheme-handler/mid=userapp-Thunderbird-C7JWX3.desktop
 x-scheme-handler/net.thunderbird=userapp-Thunderbird-21UVX3.desktop
+application/vnd.openxmlformats-officedocument.wordprocessingml.document=libreoffice-writer.desktop
+text/plain=com.microsoft.VSCode.desktop
 
 [Added Associations]
 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet=libreoffice-calc.desktop;
@@ -22,3 +24,5 @@ x-scheme-handler/mailto=userapp-Thunderbird-C7JWX3.desktop;
 x-scheme-handler/mid=userapp-Thunderbird-C7JWX3.desktop;
 message/rfc822=userapp-Thunderbird-C7JWX3.desktop;
 x-scheme-handler/net.thunderbird=userapp-Thunderbird-21UVX3.desktop;
+application/vnd.openxmlformats-officedocument.wordprocessingml.document=libreoffice-writer.desktop;
+application/x-zerosize=com.microsoft.VSCode.desktop;

@@ -1,4 +1,4 @@
-config_version = 16
+config_version = 20
 
 [bar]
 order = [ "default" ]
@@ -114,7 +114,7 @@ path = "/home/you/图片/pixiewall-u1a6st-3840x2160.jpg"
 path = "/home/you/图片/pixiewall-u1a6st-3840x2160.jpg"
 
 [wallpaper.monitors.HDMI-A-1]
-path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
+path = "/home/you/图片/pixiewall-u1a6st-3840x2160.jpg"
 
 [wallpaper.monitors.eDP-1]
 path = "/home/you/图片/pixiewall-u1a6st-3840x2160.jpg"
