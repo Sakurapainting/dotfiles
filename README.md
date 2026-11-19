@@ -45,7 +45,7 @@ dotfiles/
 | 桌面 | `.config/niri` `.config/noctalia` `.config/fastfetch` `.config/autostart` `.config/mimeapps.list` `.config/user-dirs.dirs` `.config/user-dirs.locale` |
 | 输入法 | `.config/fcitx5` |
 | 用户服务 | `.config/systemd/user` |
-| 脚本 | `.local/bin` |
+| 脚本 | `manifest` 中逐项列出的 `.local/bin` 脚本 |
 | 登录界面 | `sddm/morandi-dark`（系统级，不参与 `home/` 同步） |
 
 `~/.config` 总占用约 2.4 GB，其中绝大部分是浏览器缓存与索引数据库；实际纳入托管的配置约 216 KB。
@@ -141,11 +141,11 @@ git -C ~/dotfiles config core.hooksPath .githooks
 paru -S niri noctalia fish alacritty fcitx5-rime fastfetch
 ```
 
-`pull` 会还原 `~/.local/bin`，其中包括 `dotfiles` 本身；随后执行一次 `niri validate` 确认配置可用。硬件相关设置（显示器名称、刷新率、输入设备）需按目标机器调整 `.config/niri/cfg/display.kdl` 与 `input.kdl`。
+`pull` 会还原 `manifest` 中列出的 `~/.local/bin` 脚本，其中包括 `dotfiles` 本身；随后执行一次 `niri validate` 确认配置可用。硬件相关设置（显示器名称、刷新率、输入设备）需按目标机器调整 `.config/niri/cfg/display.kdl` 与 `input.kdl`。
 
 ## 扩展
 
-登记新路径：
+登记新路径（新增脚本也需要逐项登记，例如 `dotfiles add .local/bin/脚本名`）：
 
 ```bash
 dotfiles add .config/btop
